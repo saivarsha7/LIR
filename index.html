@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    main {
+      flex: 1 0 auto;
+    }
+    .container {
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-wrapper blue">
+      <a href="#" class="brand-logo center">Attendance System</a>
+    </div>
+  </nav>
+  <main>
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m6 offset-m3">
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title">Clock In</span>
+              <div class="input-field">
+                <input id="employee-id" type="text" class="validate">
+                <label for="employee-id">Employee ID</label>
+              </div>
+            </div>
+            <div class="card-action">
+              <a href="#" class="waves-effect waves-light btn blue" onclick="clockIn()">Clock In</a>
+            </div>
+          </div>
+        </div>
+        <div class="col s12 m6 offset-m3">
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title">Clock Out</span>
+              <div class="input-field">
+                <input id="employee-id-out" type="text" class="validate">
+                <label for="employee-id-out">Employee ID</label>
+              </div>
+            </div>
+            <div class="card-action">
+              <a href="#" class="waves-effect waves-light btn blue" onclick="clockOut()">Clock Out</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="page-footer blue">
+    <div class="footer-copyright">
+      <div class="container">
+        © 2024 Attendance System
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    const apiUrl = 'http://127.0.0.1:5000'; // Replace with your actual backend URL
+
+    function clockIn() {
+      var employeeId = document.getElementById('employee-id').value;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var location = [position.coords.latitude, position.coords.longitude];
+          fetch(`${apiUrl}/clockIn`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ employee: employeeId, gps: location })
+          })
+          .then(response => response.json())
+          .then(data => {
+            M.toast({html: data.msg, classes: 'green'});
+          })
+          .catch(error => {
+            M.toast({html: 'Error: ' + error.message, classes: 'red'});
+          });
+        }, function(error) {
+          M.toast({html: 'Error fetching location: ' + error.message, classes: 'red'});
+        }, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        });
+      } else {
+        M.toast({html: 'Geolocation is not supported by this browser.', classes: 'red'});
+      }
+    }
+
+    function clockOut() {
+      var employeeId = document.getElementById('employee-id-out').value;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var location = [position.coords.latitude, position.coords.longitude];
+          fetch(`${apiUrl}/clockOut`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ employee: employeeId, gps: location })
+          })
+          .then(response => response.json())
+          .then(data => {
+            M.toast({html: data.msg, classes: 'green'});
+          })
+          .catch(error => {
+            M.toast({html: 'Error: ' + error.message, classes: 'red'});
+          });
+        }, function(error) {
+          M.toast({html: 'Error fetching location: ' + error.message, classes: 'red'});
+        }, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        });
+      } else {
+        M.toast({html: 'Geolocation is not supported by this browser.', classes: 'red'});
+      }
+    }
+  </script>
+</body>
+</html>
